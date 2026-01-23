@@ -8,7 +8,7 @@ __version__ = "1.0.0"
 
 REPO_NAME = "end-to-end-solar-dust-detection"
 AUTHOR_USER_NAME = "Arash-Keshavarz"
-SRC_REPO = "solar-dust-detection"
+SRC_REPO = "solar_dust_detection"
 AUTHOR_EMAIL = "arash.keshavarz.dev@gmail.com"
 
 setuptools.setup(
