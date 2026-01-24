@@ -1,7 +1,8 @@
 from solar_dust_detection.constants import *
-from solar_dust_detection.entity.config_entity import DataIngestionConfig, BaseModelConfig
+from solar_dust_detection.entity.config_entity import DataIngestionConfig, BaseModelConfig, TrainingConfig
 from solar_dust_detection.utils.common import read_yaml, create_directories
 from pathlib import Path
+import os
 
 
 class ConfigurationManager:
@@ -41,3 +42,34 @@ class ConfigurationManager:
         )
         
         return base_model_config
+    
+    def get_training_config(self) -> TrainingConfig:
+        training_config = self.config.training
+
+        root_dir = Path(training_config.root_dir)
+        trained_model_path = Path(training_config.trained_model_path)
+        updated_base_model_path = Path(self.config.base_model.updated_base_model_path)
+        training_data = os.path.join(self.config.data_ingestion.unzipped_data_dir, "Detect_solar_dust")
+        create_directories([root_dir])
+        
+        params_epochs = self.params.EPOCHS
+        params_batch_size = self.params.BATCH_SIZE
+        params_is_augmentation = self.params.AUGMENTATION
+        params_image_size = self.params.IMAGE_SIZE
+        params_learning_rate = self.params.LEARNING_RATE
+        params_classes = self.params.CLASSES
+
+        training_config = TrainingConfig(
+            root_dir=root_dir,
+            trained_model_path=trained_model_path,
+            updated_base_model_path=updated_base_model_path,
+            training_data=training_data,
+            params_epochs=params_epochs,
+            params_batch_size=params_batch_size,
+            params_is_augmentation=params_is_augmentation,
+            params_image_size=params_image_size,
+            params_learning_rate=params_learning_rate,
+            params_classes=params_classes,
+        )
+
+        return training_config
