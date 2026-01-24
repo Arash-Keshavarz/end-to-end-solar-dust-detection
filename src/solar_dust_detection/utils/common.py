@@ -7,7 +7,7 @@ import joblib
 from ensure import ensure_annotations
 from box import ConfigBox
 from pathlib import Path
-from typing import Any
+from typing import Any, List, Dict
 import base64
 
 @ensure_annotations
@@ -31,11 +31,11 @@ def read_yaml(path_to_yaml: Path) -> ConfigBox:
         raise e from e  
     
 @ensure_annotations
-def create_directories(path_to_directories: list[Path], verbose=True) -> None:
+def create_directories(path_to_directories: list, verbose=True):
     """Creates directories if they do not exist.
 
     Args:
-        path_to_directories (list[Path]): List of directory paths to create.
+        path_to_directories (List[Path]): List of directory paths to create.
     """
     for path in path_to_directories:
         os.makedirs(path, exist_ok=True)
@@ -44,12 +44,12 @@ def create_directories(path_to_directories: list[Path], verbose=True) -> None:
             
 
 @ensure_annotations
-def save_json(path: Path, data: dict[str, Any]) -> None:
+def save_json(path: Path, data: Dict[str, Any]) -> None:
     """Saves a dictionary as a JSON file.
 
     Args:
         path (Path): The path to the JSON file.
-        data (dict[str, Any]): The data to save.
+        data (Dict[str, Any]): The data to save.
     """
     with open(path, "w") as json_file:
         json.dump(data, json_file, indent=4)
@@ -57,14 +57,14 @@ def save_json(path: Path, data: dict[str, Any]) -> None:
     
     
 @ensure_annotations
-def load_json(path: Path) -> dict[str, Any]:
+def load_json(path: Path) -> Dict[str, Any]:
     """Loads a JSON file and returns its contents as a dictionary.
 
     Args:
         path (Path): The path to the JSON file.
 
     Returns:
-        dict[str, Any]: The contents of the JSON file as a dictionary.
+        Dict[str, Any]: The contents of the JSON file as a dictionary.
     """
     with open(path, "r") as json_file:
         content = json.load(json_file)
