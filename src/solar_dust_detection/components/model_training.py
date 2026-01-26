@@ -1,5 +1,6 @@
 # Components update
 import os
+from pathlib import Path
 import urllib.request as request
 from zipfile import ZipFile
 import torch
@@ -9,6 +10,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision import transforms, datasets, models
 from solar_dust_detection import logger
+from solar_dust_detection.entity.config_entity import TrainingConfig
 import time
 
 class MapDataset(Dataset):
@@ -69,6 +71,8 @@ class Training:
         # ImageFolder expects structure: data/class_a/img1.jpg, data/class_b/img2.jpg
         full_dataset = datasets.ImageFolder(root=self.config.training_data)
         
+        torch.manual_seed(42) 
+       
         val_size = int(len(full_dataset) * 0.20)
         train_size = len(full_dataset) - val_size
         

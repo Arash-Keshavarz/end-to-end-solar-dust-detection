@@ -1,5 +1,5 @@
 from solar_dust_detection.constants import *
-from solar_dust_detection.entity.config_entity import DataIngestionConfig, BaseModelConfig, TrainingConfig
+from solar_dust_detection.entity.config_entity import DataIngestionConfig, BaseModelConfig, TrainingConfig, EvaluationConfig
 from solar_dust_detection.utils.common import read_yaml, create_directories
 from pathlib import Path
 import os
@@ -73,3 +73,15 @@ class ConfigurationManager:
         )
 
         return training_config
+    
+    def get_evaluation_config(self) -> EvaluationConfig:
+        eval_config = EvaluationConfig(
+            path_of_model= "artifacts/training/model.pt",
+            training_data= "artifacts/data_ingestion/Detect_solar_dust",
+            all_params = self.params,
+            mlflow_uri= "https://dagshub.com/Arash-keshavarz/end-to-end-solar-dust-detection.mlflow",
+            params_image_size = self.params.IMAGE_SIZE,
+            params_batch_size = self.params.BATCH_SIZE,
+            params_classes= self.params.CLASSES
+        )
+        return eval_config

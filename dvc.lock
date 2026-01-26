@@ -1,0 +1,45 @@
+schema: '2.0'
+stages:
+  data_ingestion:
+    cmd: python src/solar_dust_detection/pipeline/stage_01_data_ingestion.py
+    deps:
+    - path: config/config.yaml
+      hash: md5
+      md5: d42450e911507ce94a7a3b02aef99324
+      size: 559
+    - path: src/solar_dust_detection/pipeline/stage_01_data_ingestion.py
+      hash: md5
+      md5: 3f915077e2f3180d6f2458afd582a0a9
+      size: 929
+    outs:
+    - path: artifacts/data_ingestion/Detect_solar_dust
+      hash: md5
+      md5: 46df4b3ffb58832a6fab3e45f3543deb.dir
+      size: 1278645177
+      nfiles: 2562
+  base_model:
+    cmd: python src/solar_dust_detection/pipeline/stage_02_base_model.py
+    deps:
+    - path: config/config.yaml
+      hash: md5
+      md5: d42450e911507ce94a7a3b02aef99324
+      size: 559
+    - path: src/solar_dust_detection/pipeline/stage_02_base_model.py
+      hash: md5
+      md5: f0b08c80fd4195e3e6bd884dce57b250
+      size: 829
+    params:
+      params.yaml:
+        CLASSES: 2
+        IMAGE_SIZE:
+        - 224
+        - 224
+        - 3
+        LEARNING_RATE: 0.01
+        WEIGHTS: imagenet
+    outs:
+    - path: artifacts/base_model
+      hash: md5
+      md5: c7caaa509f5e2b0339ecbe81c0149249.dir
+      size: 91624982
+      nfiles: 2

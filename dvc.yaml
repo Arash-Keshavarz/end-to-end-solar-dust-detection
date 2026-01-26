@@ -1,0 +1,54 @@
+stages:
+  data_ingestion:
+    cmd: python src/solar_dust_detection/pipeline/stage_01_data_ingestion.py
+    deps:
+      - src/solar_dust_detection/pipeline/stage_01_data_ingestion.py
+      - config/config.yaml
+    outs:
+      - artifacts/data_ingestion/Detect_solar_dust
+
+  base_model:
+    cmd: python src/solar_dust_detection/pipeline/stage_02_base_model.py
+    deps:
+      - src/solar_dust_detection/pipeline/stage_02_base_model.py
+      - config/config.yaml
+    params:
+      - IMAGE_SIZE
+      - CLASSES
+      - WEIGHTS
+      - LEARNING_RATE
+    outs:
+      - artifacts/base_model
+
+  training:
+    cmd: python src/solar_dust_detection/pipeline/stage_03_model_training.py
+    deps:
+      - src/solar_dust_detection/pipeline/stage_03_model_training.py
+      - config/config.yaml
+      - artifacts/data_ingestion/Detect_solar_dust
+      - artifacts/base_model
+    params:
+      - IMAGE_SIZE
+      - CLASSES
+      - WEIGHTS
+      - LEARNING_RATE
+      - BATCH_SIZE
+      - EPOCHS
+      - AUGMENTATION
+    outs:
+      - artifacts/training/model.pt
+
+  evaluation:
+    cmd: python src/solar_dust_detection/pipeline/stage_04_model_evaluation_mlflow.py
+    deps:
+      - src/solar_dust_detection/pipeline/stage_04_model_evaluation_mlflow.py
+      - config/config.yaml
+      - artifacts/training/model.pt
+      - artifacts/data_ingestion/Detect_solar_dust
+    params:
+      - IMAGE_SIZE
+      - CLASSES
+      - BATCH_SIZE
+    metrics:
+      - scores.json:
+          cache: false
