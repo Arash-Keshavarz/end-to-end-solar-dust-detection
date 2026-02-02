@@ -25,7 +25,7 @@ class PredictionPipeline:
         model.fc = nn.Linear(num_features, 2) 
 
         # Load Weights
-        model_path = os.path.join("artifacts", "training", "model.pt") 
+        model_path = os.path.join("model", "model.pt") 
         
         checkpoint = torch.load(model_path, map_location=torch.device('cpu'))
         model.load_state_dict(checkpoint)
