@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Dust Detection AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        .main-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            overflow: hidden;
+            width: 100%;
+            max-width: 1000px;
+            margin: 20px;
+        }
+
+        .header-section {
+            background: #fff;
+            padding: 20px 40px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-section h3 {
+            margin: 0;
+            color: #4a4a4a;
+            font-weight: 700;
+        }
+
+        .content-section {
+            padding: 40px;
+        }
+
+        /* Image Preview Area */
+        .image-preview-container {
+            border: 2px dashed #cbd5e0;
+            border-radius: 15px;
+            height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafc;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .image-preview-container:hover {
+            border-color: #764ba2;
+            background: #f1f5f9;
+        }
+
+        #photo {
+            max-width: 100%;
+            max-height: 100%;
+            display: none;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .placeholder-text {
+            text-align: center;
+            color: #94a3b8;
+        }
+
+        .placeholder-text i {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+
+        /* Buttons */
+        .btn-custom {
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn-upload {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-upload:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+
+        .btn-predict {
+            background: #764ba2;
+            color: white;
+        }
+
+        .btn-predict:hover {
+            background: #6b4296;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+            color: white;
+        }
+
+        /* Results Area */
+        .result-box {
+            background: #1e293b;
+            color: #00ff9d; /* Matrix Green text */
+            padding: 20px;
+            border-radius: 15px;
+            height: 350px;
+            overflow-y: auto;
+            font-family: 'Courier New', Courier, monospace;
+            border: 1px solid #334155;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .result-header {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 5px;
+        }
+
+        /* Loading Spinner */
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #764ba2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            font-weight: 600;
+            color: #764ba2;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        .footer-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.8);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="main-card">
+            <div class="header-section">
+                <h3><i class="fas fa-satellite-dish me-2"></i> Solar Dust Detector</h3>
+                <span class="badge bg-light text-dark">v2.0 PyTorch</span>
+            </div>
+
+            <div class="content-section">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <h5 class="mb-3 text-secondary">Input Image</h5>
+                        
+                        <div class="image-preview-container" id="drop-zone">
+                            <div class="placeholder-text" id="placeholder">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>No image selected</p>
+                                <small>Click "Upload" to browse</small>
+                            </div>
+                            <img src="" id="photo" alt="Selected Image">
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-6">
+                                <button type="button" class="btn btn-custom btn-upload" id="uload">
+                                    <i class="fas fa-image me-2"></i> Upload
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button type="button" class="btn btn-custom btn-predict" id="send">
+                                    <i class="fas fa-magic me-2"></i> Predict
+                                </button>
+                            </div>
+                        </div>
+
+                        <form id="upload-data">
+                            <input type="hidden" id="url" value="/predict"/>
+                            <input name="upload" type="file" id="fileinput" accept="image/*" style="display:none;"/>
+                        </form>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h5 class="mb-3 text-secondary">Analysis Results</h5>
+                        <div class="result-box">
+                            <div class="result-header">// SYSTEM LOGS</div>
+                            <div class="jsonRes" id="jsonRes">
+                                Waiting for prediction...
+                                <br>
+                                > System Ready.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-link">
+            Powered by PyTorch & Flask
+        </div>
+    </div>
+
+    <div id="loading" style="display:none;">
+        <div class="spinner"></div>
+        <div class="loading-text">Analyzing Image...</div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        var base_data = "";
+
+        function sendRequest(base64Data){
+            if(base64Data != "" && base64Data != null){
+                var url = $("#url").val();
+                $("#loading").fadeIn(); // Smooth fade in
+                
+                $.ajax({
+                    url : url,
+                    type: "post",
+                    cache: false,
+                    async: true,
+                    crossDomain: true,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin':'*'
+                    },
+                    data:JSON.stringify({image:base64Data}),
+                    success: function(res){
+                        $("#loading").fadeOut();
+                        
+                        // Format JSON for display
+                        var formattedJson = JSON.stringify(res, undefined, 4);
+                        
+                        // Typewriter effect or just clean display
+                        $("#jsonRes").html(
+                            "<span style='color: #fff;'> > Prediction Complete</span><br><br>" +
+                            "<pre style='color: #00ff9d;'>" + formattedJson + "</pre>"
+                        );
+                    },
+                    error: function(err){
+                        $("#loading").fadeOut();
+                        $("#jsonRes").html("<span style='color: #ff5f5f;'> > Error connecting to server.</span>");
+                    }
+                });
+            } else {
+                alert("Please upload an image first!");
+            }
+        }
+
+        $(document).ready(function(){
+            
+            // Trigger file input when clicking Upload button
+            $('#uload').click(function(evt) {
+                $('#fileinput').click();
+            });
+
+            // Trigger prediction
+            $('#send').click(function(evt){
+                sendRequest(base_data);
+            });
+
+            // Handle File Selection
+            $("#fileinput").change(function(){
+                if (this.files && this.files[0]){
+                    var reader = new FileReader();
+                    reader.onload = function (e){
+                        var url = e.target.result;
+                        var img = new Image();
+                        img.crossOrigin = 'Anonymous';
+                        img.onload = function(){
+                            var canvas = document.createElement('CANVAS');
+                            var ctx = canvas.getContext('2d');
+                            canvas.height = this.height;
+                            canvas.width = this.width;
+                            ctx.drawImage(this, 0, 0);
+                            base_data = canvas.toDataURL('image/jpeg', 1.0).replace(/^data:image.+;base64,/, '');
+                            canvas = null;
+                        };
+                        img.src = url;
+                        
+                        // Update UI
+                        $('#photo').attr('src', url);
+                        $('#photo').show();
+                        $('#placeholder').hide(); // Hide placeholder text
+                    }
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
