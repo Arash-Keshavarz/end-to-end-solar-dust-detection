@@ -17,21 +17,25 @@ class ClientApp:
         self.filename = "inputImage.jpg"
         self.classifier = PredictionPipeline(self.filename)
 
+#---------------------------------------------------------------
 @app.route("/", methods=['GET'])
 def home():
     return render_template('index.html')
 
+#---------------------------------------------------------------
 @app.route("/train", methods=['GET','POST'])
 def trainRoute():
     os.system("python main.py")
     return "Training done successfully!"
-
+#---------------------------------------------------------------
 @app.route("/predict", methods=['POST'])
 def predictRoute():
     image = request.json['image']
     decodeBase64ToImage(image, clApp.filename)
     result = clApp.classifier.predict()
     return jsonify(result)
+#---------------------------------------------------------------
+
 
 if __name__ == "__main__":
     clApp = ClientApp()
