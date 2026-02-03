@@ -1,6 +1,8 @@
-from solar_dust_detection.config.configuration import ConfigurationManager
+import os
+
 from solar_dust_detection import logger
 from solar_dust_detection.components.model_evaluation_mlflow import Evaluation
+from solar_dust_detection.config.configuration import ConfigurationManager
 
 
 
@@ -16,7 +18,10 @@ class ModelEvaluationPipeline:
         evaluation_config = config.get_evaluation_config()
         evaluation = Evaluation(config=evaluation_config)
         evaluation.evaluation()
-        #evaluation.log_into_mlflow()
+        if os.getenv("ENABLE_MLFLOW", "0") == "1":
+            evaluation.log_into_mlflow()
+        else:
+            logger.info("Skipping MLflow logging. Set ENABLE_MLFLOW=1 to enable.")
 
 
 

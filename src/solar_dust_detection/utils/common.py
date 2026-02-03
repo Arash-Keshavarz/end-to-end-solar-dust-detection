@@ -1,5 +1,9 @@
 import os
-from box.exceptions import BoxValueError
+try:
+    # python-box versions differ in what they expose; guard for lint/runtime robustness
+    from box.exceptions import BoxValueError
+except Exception:  # pragma: no cover
+    BoxValueError = ValueError  # type: ignore[assignment]
 import yaml
 from solar_dust_detection import logger
 import json
@@ -7,7 +11,7 @@ import joblib
 from ensure import ensure_annotations
 from box import ConfigBox
 from pathlib import Path
-from typing import Any, List, Dict
+from typing import Any, Dict
 import base64
 
 @ensure_annotations
@@ -21,14 +25,14 @@ def read_yaml(path_to_yaml: Path) -> ConfigBox:
         ConfigBox: The contents of the YAML file as a ConfigBox object.
     """
     try:
-        with open(path_to_yaml) as yaml_file:
+        with open(path_to_yaml, encoding="utf-8") as yaml_file:
             content = yaml.safe_load(yaml_file)
-            logger.info(f"YAML file: {path_to_yaml} loaded successfully")
+            logger.info("YAML file loaded successfully: %s", path_to_yaml)
             return ConfigBox(content)
-    except BoxValueError:
-        raise ValueError("YAML file is empty")
-    except Exception as e:
-        raise e from e  
+    except BoxValueError as exc:
+        raise ValueError("YAML file is empty") from exc
+    except Exception as exc:
+        raise exc from exc  
     
 @ensure_annotations
 def create_directories(path_to_directories: list, verbose=True):
@@ -40,7 +44,7 @@ def create_directories(path_to_directories: list, verbose=True):
     for path in path_to_directories:
         os.makedirs(path, exist_ok=True)
         if verbose:
-            logger.info(f"Created directory at: {path}")
+            logger.info("Created directory at: %s", path)
             
 
 #@ensure_annotations
@@ -51,9 +55,9 @@ def save_json(path: Path, data: dict) -> None:
         path (Path): The path to the JSON file.
         data (Dict[str, Any]): The data to save.
     """
-    with open(path, "w") as json_file:
+    with open(path, "w", encoding="utf-8") as json_file:
         json.dump(data, json_file, indent=4)
-    logger.info(f"JSON file saved at: {path}")
+    logger.info("JSON file saved at: %s", path)
     
     
 @ensure_annotations
@@ -66,9 +70,9 @@ def load_json(path: Path) -> Dict[str, Any]:
     Returns:
         Dict[str, Any]: The contents of the JSON file as a dictionary.
     """
-    with open(path, "r") as json_file:
+    with open(path, "r", encoding="utf-8") as json_file:
         content = json.load(json_file)
-    logger.info(f"JSON file loaded from: {path}")
+    logger.info("JSON file loaded from: %s", path)
     
     return ConfigBox(content)
 
@@ -81,7 +85,7 @@ def save_bin(data: Any, path: Path) -> None:
         path (Path): The path to the binary file.
     """
     joblib.dump(data, path)
-    logger.info(f"Binary file saved at: {path}")    
+    logger.info("Binary file saved at: %s", path)    
     
 @ensure_annotations
 def load_bin(path: Path) -> Any:
@@ -94,7 +98,7 @@ def load_bin(path: Path) -> Any:
         Any: The data loaded from the binary file.
     """
     data = joblib.load(path)
-    logger.info(f"Binary file loaded from: {path}")
+    logger.info("Binary file loaded from: %s", path)
     
     return data 
 
@@ -109,7 +113,7 @@ def get_size(path: Path) -> str:
         str: The size of the file in KB.
     """
     size_in_kb = round(os.path.getsize(path) / 1024, 2)
-    logger.info(f"File size for {path} is {size_in_kb} KB")
+    logger.info("File size for %s is %s KB", path, size_in_kb)
     return f"{size_in_kb} KB"   
 
 def encodeImageIntoBase64(image_path: Path) -> str:
@@ -123,7 +127,7 @@ def encodeImageIntoBase64(image_path: Path) -> str:
     """
     with open(image_path, "rb") as image_file:
         encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
-    logger.info(f"Image at {image_path} encoded into base64 string")
+    logger.info("Image encoded into base64: %s", image_path)
     return encoded_string
 
 def decodeBase64ToImage(base64_string: str, output_path: Path) -> None:
@@ -135,5 +139,4 @@ def decodeBase64ToImage(base64_string: str, output_path: Path) -> None:
     """
     with open(output_path, "wb") as image_file:
         image_file.write(base64.b64decode(base64_string))
-        image_file.close()
-    logger.info(f"Base64 string decoded and saved as image at {output_path}")
+    logger.info("Base64 decoded and saved as image: %s", output_path)
