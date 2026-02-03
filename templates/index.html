@@ -230,12 +230,11 @@
 
                     <div class="col-md-6">
                         <h5 class="mb-3 text-secondary">Analysis Results</h5>
-                        <div class="result-box">
-                            <div class="result-header">// SYSTEM LOGS</div>
-                            <div class="jsonRes" id="jsonRes">
-                                Waiting for prediction...
-                                <br>
-                                > System Ready.
+                        
+                        <div id="result-container" class="p-4 rounded-3 shadow-sm" style="background: #f8f9fa; min-height: 200px; display: flex; align-items: center; justify-content: center; text-align: center;">
+                            <div class="text-muted">
+                                <i class="fas fa-microchip fa-3x mb-3"></i>
+                                <p>Model is ready.<br>Upload an image to start analysis.</p>
                             </div>
                         </div>
                     </div>
@@ -261,7 +260,7 @@
         function sendRequest(base64Data){
             if(base64Data != "" && base64Data != null){
                 var url = $("#url").val();
-                $("#loading").fadeIn(); // Smooth fade in
+                $("#loading").fadeIn(); 
                 
                 $.ajax({
                     url : url,
@@ -277,18 +276,62 @@
                     success: function(res){
                         $("#loading").fadeOut();
                         
-                        // Format JSON for display
-                        var formattedJson = JSON.stringify(res, undefined, 4);
+                        // 1. Get the predicted label from the JSON
+                        // Assuming response is [{ "image": "Dusty" }]
+                        var label = res[0].image; 
                         
-                        // Typewriter effect or just clean display
-                        $("#jsonRes").html(
-                            "<span style='color: #fff;'> > Prediction Complete</span><br><br>" +
-                            "<pre style='color: #00ff9d;'>" + formattedJson + "</pre>"
-                        );
+                        // 2. Define Content Variables
+                        var message = "";
+                        var colorClass = "";
+                        var icon = "";
+                        var advice = "";
+
+                        // 3. Logic to choose message based on label
+                        // Note: Make sure "Dusty" matches exactly what your Python code returns!
+                        if (label === "Dusty" || label === "Tumor") { 
+                            // Case: Bad/Dusty
+                            colorClass = "alert-warning"; // Bootstrap yellow/orange
+                            icon = "fa-broom";
+                            message = "Solar Panel is Dusty";
+                            advice = "Efficiency is low. It is highly recommended to clean this panel immediately.";
+                        } 
+                        else if (label === "Clean" || label === "Normal") {
+                            // Case: Good/Clean
+                            colorClass = "alert-success"; // Bootstrap green
+                            icon = "fa-check-circle";
+                            message = "Solar Panel is Clean";
+                            advice = "Great! Your panel is operating at optimal visual efficiency. No action needed.";
+                        } 
+                        else {
+                            // Case: Unknown
+                            colorClass = "alert-secondary";
+                            icon = "fa-question-circle";
+                            message = "Unknown Classification";
+                            advice = "Raw Output: " + label;
+                        }
+
+                        // 4. Inject professional HTML into the result container
+                        var htmlContent = `
+                            <div class="alert ${colorClass} border-0 w-100" role="alert">
+                                <h1 class="display-4"><i class="fas ${icon}"></i></h1>
+                                <h4 class="alert-heading fw-bold mt-2">${message}</h4>
+                                <hr>
+                                <p class="mb-0 fs-5">${advice}</p>
+                            </div>
+                        `;
+
+                        $("#result-container").html(htmlContent);
+                        $("#result-container").css("background", "transparent"); // Clear default background
                     },
                     error: function(err){
                         $("#loading").fadeOut();
-                        $("#jsonRes").html("<span style='color: #ff5f5f;'> > Error connecting to server.</span>");
+                        $("#result-container").html(`
+                            <div class="alert alert-danger w-100">
+                                <i class="fas fa-exclamation-triangle fa-2x"></i>
+                                <h5 class="mt-2">Connection Error</h5>
+                                <p>Could not reach the server.</p>
+                            </div>
+                        `);
                     }
                 });
             } else {
