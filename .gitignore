@@ -208,4 +208,5 @@ __marimo__/
 
 
 artifacts/*
-
+research/*
+*.ipynb
