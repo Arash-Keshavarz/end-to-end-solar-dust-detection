@@ -17,7 +17,15 @@ End-to-end ML pipeline for detecting dust on solar panels using image classifica
 
 ## Demo
 
-![App demo](ASSETS/demo.gif)
+<p align="center">
+  <a href="ASSETS/demo.gif">
+    <img src="ASSETS/demo.gif" alt="App demo: upload image and predict Clean vs Dusty" width="900" />
+  </a>
+</p>
+
+<p align="center">
+  <sub>Click the demo to open full size.</sub>
+</p>
 
 ## Quickstart (local)
 Create a virtual environment and install dependencies:
