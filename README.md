@@ -1,6 +1,6 @@
 # Solar Dust Detection (End-to-End MLOps)
 
-![Image](ASSETS/project_title.png)
+![Solar Dust Detection — project title](ASSETS/project_title.png)
 
 End-to-end ML pipeline for detecting dust on solar panels using image classification (**Clean** vs **Dusty**). This repo includes reproducible pipelines (DVC), experiment tracking (MLflow), an inference API (Flask), and containerization + CI/CD scaffolding.
 
@@ -10,6 +10,14 @@ End-to-end ML pipeline for detecting dust on solar panels using image classifica
 - **Experiment tracking**: MLflow logging (local or DagsHub)
 - **Serving**: Flask API (`/predict`) + simple web UI
 - **Deployment**: Docker image build + push to AWS ECR (GitHub Actions)
+
+## Architecture
+
+![System architecture diagram: DVC/MLflow pipeline → GitHub Actions CI/CD → AWS ECR → EC2 Docker Flask app](ASSETS/architecture.png)
+
+## Demo
+
+![App demo](ASSETS/demo.gif)
 
 ## Quickstart (local)
 Create a virtual environment and install dependencies:
@@ -126,6 +134,7 @@ GitHub Actions workflow:
 ## Project structure
 ```
 .
+├── ASSETS/                        # Images, diagrams, demo GIF
 ├── app.py                         # Flask inference server
 ├── dvc.yaml                        # DVC pipeline definition
 ├── params.yaml                     # Training hyperparameters
